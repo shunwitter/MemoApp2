@@ -8,7 +8,7 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "updates": {
@@ -18,12 +18,17 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "jp.workabroad.memoapp2",
+      "buildNumber": "1.0.0"
     },
     "android": {
+      "package": "jp.workabroad.memoapp2",
+      "versionCode": 1,
+      "permissions": [],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "foregroundImage": "./assets/icon_adaptive_foreground.png",
+        "backgroundImage": "./assets/icon_adaptive_background.png"
       }
     },
     "web": {
