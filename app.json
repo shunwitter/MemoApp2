@@ -2,7 +2,7 @@
   "expo": {
     "name": "MemoApp2",
     "slug": "MemoApp2",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "privacy": "unlisted",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,12 +19,12 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "jp.workabroad.memoapp2",
-      "buildNumber": "1.0.0"
+      "bundleIdentifier": "jp.workabroad.memoapp2021",
+      "buildNumber": "1.0.2"
     },
     "android": {
-      "package": "jp.workabroad.memoapp2",
-      "versionCode": 1,
+      "package": "jp.workabroad.memoapp2021",
+      "versionCode": 3,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon_adaptive_foreground.png",
