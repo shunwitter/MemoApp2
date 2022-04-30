@@ -1,68 +1,72 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   View, StyleSheet, Alert, Text,
 } from 'react-native';
 import firebase from 'firebase';
+import { useFocusEffect } from '@react-navigation/native';
+import { HeaderBackButton } from '@react-navigation/elements';
 
 import MemoList from '../components/MemoList';
 import CircleButton from '../components/CircleButton';
 import Button from '../components/Button';
 import Loading from '../components/Loading';
-import HeaderRightButton from '../components/HeaderRightButton';
+import UserContext from '../utils/UserContext';
 
 export default function MemoListScreen(props) {
   const { navigation } = props;
   const [memos, setMemos] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const user = useContext(UserContext);
+
+  // Replace header left button if current page is not MemoListScreen
+  useFocusEffect(() => {
+    const drawer = navigation.getParent('LeftDrawer');
+    drawer?.setOptions({ headerLeft: null });
+    return () => {
+      drawer?.setOptions({
+        headerLeft: () => (
+          <HeaderBackButton
+            label="Back"
+            tintColor="#ffffff"
+            onPress={() => { navigation.goBack(); }}
+          />
+        ),
+      });
+    };
+  });
 
   useEffect(() => {
     setLoading(true);
 
-    const cleanupFuncs = {
-      auth: () => {},
-      memos: () => {},
-    };
-    cleanupFuncs.auth = firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        const db = firebase.firestore();
-        const ref = db.collection(`users/${user.uid}/memos`).orderBy('updatedAt', 'desc');
-        cleanupFuncs.memos = ref.onSnapshot((snapshot) => {
-          const userMemos = [];
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            userMemos.push({
-              id: doc.id,
-              bodyText: data.bodyText,
-              updatedAt: data.updatedAt.toDate(),
-            });
+    let cleanup = () => {};
+    if (user) {
+      const db = firebase.firestore();
+      const ref = db.collection(`users/${user.uid}/memos`).orderBy('updatedAt', 'desc');
+      cleanup = ref.onSnapshot((snapshot) => {
+        const userMemos = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          userMemos.push({
+            id: doc.id,
+            bodyText: data.bodyText,
+            updatedAt: data.updatedAt.toDate(),
           });
-          setMemos(userMemos);
-          setLoading(false);
-        }, () => {
-          setLoading(false);
         });
-        // ユーザーが存在したら会員登録ボタンかログアウトボタンを表示
-        // 会員登録ボタン：匿名ユーザー
-        // ログアウトボタン：メアド登録済ユーザー
-        navigation.setOptions({
-          headerRight: () => (
-            <HeaderRightButton currentUser={user} cleanupFuncs={cleanupFuncs} />
-          ),
-        });
-      } else {
-        // 匿名ログイン（firebaseの Authentication > Sign-in method から有効にする必要があります）
-        firebase.auth().signInAnonymously()
-          .catch(() => {
-            Alert.alert('エラー', 'アプリを再起動してください');
-          })
-          .then(() => { setLoading(false); });
-      }
-    });
-    return () => {
-      cleanupFuncs.auth();
-      cleanupFuncs.memos();
-    };
-  }, []);
+        setMemos(userMemos);
+        setLoading(false);
+      }, () => {
+        setLoading(false);
+      });
+    } else {
+      // 匿名ログイン（firebaseの Authentication > Sign-in method から有効にする必要があります）
+      firebase.auth().signInAnonymously()
+        .catch(() => {
+          Alert.alert('エラー', 'アプリを再起動してください');
+        })
+        .then(() => { setLoading(false); });
+    }
+    return cleanup;
+  }, [user]);
 
   if (memos.length === 0) {
     return (

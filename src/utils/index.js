@@ -29,6 +29,12 @@ export function translateErrors(code) {
     case 'auth/weak-password':
       error.description = 'パスワードが簡単すぎます。';
       break;
+    case 'auth/user-mismatch':
+      error.description = 'ログイン中のユーザーと異なるアカウント情報が入力されました。';
+      break;
+    case 'auth/invalid-credential':
+      error.description = '認証できませんでした。';
+      break;
     default:
   }
   return error;

@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
-  View, Text, TextInput, StyleSheet, TouchableOpacity, Alert,
+  View, Text, TextInput, StyleSheet, Alert,
 } from 'react-native';
 import firebase from 'firebase';
 
-import Button from '../components/Button';
-import Loading from '../components/Loading';
-import { translateErrors } from '../utils';
+import Button from '../../components/Button';
+import Loading from '../../components/Loading';
+import { translateErrors } from '../../utils';
+import UserContext from '../../utils/UserContext';
 
 export default function LogInScreen(props) {
   const { navigation } = props;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setLoading] = useState(false);
+  const user = useContext(UserContext);
 
   function handlePress() {
+    if (user == null || user.isAnonymous) { return; }
     setLoading(true);
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    const credential = firebase.auth.EmailAuthProvider.credential(email, password);
+    user.reauthenticateWithCredential(credential)
       .then(() => {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Memo' }],
-        });
+        navigation.navigate('Confirm');
       })
       .catch((error) => {
         const errorMsg = translateErrors(error.code);
@@ -34,7 +35,8 @@ export default function LogInScreen(props) {
     <View style={styles.container}>
       <Loading isLoading={isLoading} />
       <View style={styles.inner}>
-        <Text style={styles.title}>Log In</Text>
+        <Text style={styles.title}>アカウントの削除</Text>
+        <Text style={styles.description}>アカウントの削除するには再度ログインが必要です。</Text>
         <TextInput
           style={styles.input}
           value={email}
@@ -57,19 +59,6 @@ export default function LogInScreen(props) {
           label="Submit"
           onPress={handlePress}
         />
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Not registered?</Text>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'SignUp' }],
-              });
-            }}
-          >
-            <Text style={styles.footerLink}>Sign up here!</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </View>
   );
@@ -90,6 +79,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 24,
   },
+  description: {
+    marginBottom: 16,
+    lineHeight: 20,
+  },
   input: {
     fontSize: 16,
     height: 48,
@@ -98,18 +91,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: 8,
     marginBottom: 16,
-  },
-  footerText: {
-    fontSize: 14,
-    lineHeight: 24,
-    marginRight: 8,
-  },
-  footerLink: {
-    fontSize: 14,
-    lineHeight: 24,
-    color: '#467FD3',
-  },
-  footer: {
-    flexDirection: 'row',
   },
 });

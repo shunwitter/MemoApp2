@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, TouchableOpacity, Alert,
 } from 'react-native';
@@ -6,7 +6,6 @@ import firebase from 'firebase';
 
 import Button from '../components/Button';
 import Loading from '../components/Loading';
-import CancelLogIn from '../components/CancelLogIn';
 import { translateErrors } from '../utils';
 
 export default function SignUpScreen(props) {
@@ -14,12 +13,6 @@ export default function SignUpScreen(props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => <CancelLogIn />,
-    });
-  }, []);
 
   function handlePress() {
     setLoading(true);
@@ -32,17 +25,15 @@ export default function SignUpScreen(props) {
           {
             text: 'OK',
             onPress: () => {
-              navigation.reset({ index: 0, routes: [{ name: 'MemoList' }] });
+              navigation.reset({ index: 0, routes: [{ name: 'Memo' }] });
             },
           },
         ]);
       })
       .catch((error) => {
         const errorMsg = translateErrors(error.code);
-        Alert.alert(errorMsg.title, errorMsg.description);
-      })
-      .then(() => {
         setLoading(false);
+        Alert.alert(errorMsg.title, errorMsg.description);
       });
   }
 

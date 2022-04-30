@@ -1,15 +1,16 @@
-import React from 'react';
+import 'react-native-gesture-handler';
+import React, { useState, useEffect } from 'react';
 import { LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import firebase from 'firebase';
 
-import MemoListScreen from './src/screens/MemoListScreen';
-import MemoDetailScreen from './src/screens/MemoDetailScreen';
-import MemoEditScreen from './src/screens/MemoEditScreen';
-import MemoCreateScreen from './src/screens/MemoCreateScreen';
+import MemoScreen from './src/screens/MemoScreen';
 import LogInScreen from './src/screens/LogInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
+import DeleteAccountScreen from './src/screens/DeleteAccount';
+import CustomDrawerContent from './src/components/CustomDrawerContent';
+import UserContext from './src/utils/UserContext';
 
 import { firebaseConfig } from './env';
 
@@ -19,50 +20,38 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
 
-const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 LogBox.ignoreLogs(['Setting a timer']);
 
 export default function App() {
+  const [currentUser, setCurrentUser] = useState(null);
+  useEffect(() => {
+    const cleanup = firebase.auth().onAuthStateChanged((user) => {
+      setCurrentUser(user);
+    });
+    return cleanup;
+  }, []);
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="MemoList"
-        screenOptions={{
-          headerStyle: { backgroundColor: '#467FD3' },
-          headerTitleStyle: { color: '#ffffff' },
-          headerTitle: 'Memo App',
-          headerTintColor: '#ffffff',
-          headerBackTitle: 'Back',
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
-        }}
-      >
-        <Stack.Screen
-          name="MemoList"
-          component={MemoListScreen}
-          options={{
-            cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
+    <UserContext.Provider value={currentUser}>
+      <NavigationContainer>
+        <Drawer.Navigator
+          id="LeftDrawer"
+          initialRouteName="Memo"
+          drawerContent={CustomDrawerContent}
+          screenOptions={{
+            headerStyle: { backgroundColor: '#467FD3' },
+            headerTitleStyle: { color: '#ffffff' },
+            headerTitle: 'Memo App',
+            headerTintColor: '#ffffff',
           }}
-        />
-        <Stack.Screen name="MemoDetail" component={MemoDetailScreen} />
-        <Stack.Screen name="MemoEdit" component={MemoEditScreen} />
-        <Stack.Screen name="MemoCreate" component={MemoCreateScreen} />
-        <Stack.Screen
-          name="LogIn"
-          component={LogInScreen}
-          options={{
-            cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
-          }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignUpScreen}
-          options={{
-            cardStyleInterpolator: CardStyleInterpolators.forFadeFromBottomAndroid,
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+        >
+          <Drawer.Screen name="Memo" component={MemoScreen} />
+          <Drawer.Screen name="LogIn" component={LogInScreen} />
+          <Drawer.Screen name="SignUp" component={SignUpScreen} />
+          <Drawer.Screen name="DeleteAccount" component={DeleteAccountScreen} />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </UserContext.Provider>
   );
 }
