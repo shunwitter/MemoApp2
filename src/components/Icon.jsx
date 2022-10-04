@@ -1,6 +1,6 @@
 import React from 'react';
 import { createIconSetFromIcoMoon } from '@expo/vector-icons';
-import { useFonts } from '@use-expo/font';
+import { useFonts } from 'expo-font';
 import { number, string, oneOf } from 'prop-types';
 
 import icomoon from '../../assets/fonts/icomoon.ttf';
