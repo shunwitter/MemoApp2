@@ -24,7 +24,7 @@
     },
     "android": {
       "package": "jp.workabroad.memoapp2021",
-      "versionCode": 4,
+      "versionCode": 5,
       "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon_adaptive_foreground.png",
@@ -33,6 +33,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7b729b2a-c2f8-4380-9b60-2e297a205f5b"
+      }
     }
   }
 }

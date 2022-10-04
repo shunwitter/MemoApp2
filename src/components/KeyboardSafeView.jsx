@@ -1,20 +1,20 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
-  Keyboard, Dimensions, Animated, ViewPropTypes,
+  Keyboard, Dimensions, Animated,
 } from 'react-native';
-import { node } from 'prop-types';
 
+/* eslint-disable-next-line */
 export default function KeyboardSafeView({ children, style }) {
   const initialViewHeight = useRef(null);
   const animatedViewHeight = useRef(null);
   const [viewHeight, setViewHeight] = useState(null);
 
   useEffect(() => {
-    Keyboard.addListener('keyboardDidShow', handleShow);
-    Keyboard.addListener('keyboardDidHide', handleHide);
+    const showSub = Keyboard.addListener('keyboardDidShow', handleShow);
+    const hideSub = Keyboard.addListener('keyboardDidHide', handleHide);
     return () => {
-      Keyboard.removeListener('keyboardDidShow', handleShow);
-      Keyboard.removeListener('keyboardDidHide', handleHide);
+      showSub.remove();
+      hideSub.remove();
     };
   }, []);
 
@@ -62,12 +62,3 @@ export default function KeyboardSafeView({ children, style }) {
     </Animated.View>
   );
 }
-
-KeyboardSafeView.propTypes = {
-  children: node.isRequired,
-  style: ViewPropTypes.style,
-};
-
-KeyboardSafeView.defaultProps = {
-  style: null,
-};
